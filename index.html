@@ -1,1 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة الأمن السيبراني - كلية العمارة الجامعة</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sky: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    },
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
 
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-20">
+
+    <!-- Splash Animated Screen -->
+    <div id="splash-screen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-between p-6 transition-opacity duration-700">
+        <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://i.ibb.co/L5BpykK/image.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+        
+        <div class="relative z-10 text-center mt-12 animate-fade-in">
+            <img src="https://i.ibb.co/vz85HqD/image.jpg" class="w-20 h-20 mx-auto rounded-full border-2 border-sky-400 p-1 bg-white/10 backdrop-blur shadow-2xl mb-3" alt="لوجو الكلية">
+            <h2 class="text-sky-400 font-extrabold text-sm tracking-wider">كلية العمارة الجامعة</h2>
+            <h1 class="text-white font-black text-xl mt-1">تقنيات هندسة الأمن السيبراني</h1>
+        </div>
+
+        <div class="relative z-10 text-center mb-8 animate-fade-in">
+            <div class="w-10 h-10 border-3 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-slate-300 text-xs font-semibold">جاري تحضير المنصة والمستندات...</p>
+            <div class="mt-4 bg-sky-500/20 backdrop-blur border border-sky-400/30 px-4 py-2 rounded-2xl">
+                <p class="text-sky-300 font-extrabold text-xs">تطوير المهندس: محمد باقر أحمد إبراهيم ⚡</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rapid Notification Toast -->
+    <div id="notification-toast" class="fixed top-4 left-4 right-4 z-50 glass-card bg-slate-900/90 text-white p-3 rounded-2xl shadow-2xl border border-sky-400/50 hidden animate-fade-in flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold text-sm">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <div>
+                <h5 id="notif-title" class="font-bold text-xs text-sky-300">إشعار عاجل</h5>
+                <p id="notif-body" class="text-[10px] text-slate-200"></p>
+            </div>
+        </div>
+        <button onclick="closeNotification()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Developer Status Bar -->
+    <div id="dev-mode-bar" class="hidden bg-slate-900 text-sky-400 text-[11px] font-bold text-center py-1 flex justify-between px-4 items-center">
+        <span><i class="fa-solid fa-user-gear ml-1"></i> لوحة تحكم المطور: محمد باقر أحمد إبراهيم ⚡</span>
+        <button onclick="toggleDevMode(false)" class="text-red-400 text-[10px] underline">خروج</button>
+    </div>
+
+    <!-- Top Header Bar -->
+    <header class="sticky top-0 z-40 glass-card px-4 py-2.5 mb-3 rounded-b-2xl shadow-sm">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2.5" onclick="openLoginModal()">
+                <img src="https://i.ibb.co/vz85HqD/image.jpg" class="w-10 h-10 object-contain rounded-full border border-sky-300 p-0.5 bg-white shadow-sm" alt="لوجو الكلية">
+                <div>
+                    <h2 id="user-display-name" class="font-extrabold text-xs text-slate-800 leading-tight">طالب الأمن السيبراني</h2>
+                    <p id="user-display-username" class="text-[10px] text-sky-600 font-bold">تسجيل الحساب الحقيقي</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="promptDevPasscode()" title="أيقونة المطور الخاصة" class="w-9 h-9 rounded-xl bg-slate-900 text-sky-400 hover:bg-black hover:text-sky-300 flex items-center justify-center transition shadow-sm border border-sky-400/30">
+                    <i class="fa-solid fa-user-shield text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto px-4">
+
+        <!-- Welcome Banner -->
+        <div class="glass-card p-3.5 rounded-2xl mb-3 bg-gradient-to-r from-sky-400/20 to-blue-500/10 border-sky-200/50">
+            <div class="flex items-center justify-between gap-2">
+                <div>
+                    <span class="bg-sky-600 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full">كلية العمارة الجامعة</span>
+                    <h1 class="text-sm font-extrabold text-slate-800 mt-1">منصة الأمن السيبراني 🛡️</h1>
+                    <p class="text-[10px] text-slate-600 mt-0.5">تطوير المهندس: <strong class="text-sky-700">محمد باقر أحمد إبراهيم</strong></p>
+                </div>
+                <img src="https://i.ibb.co/vz85HqD/image.jpg" class="w-12 h-12 object-contain rounded-xl bg-white p-1 border border-sky-200 shadow-sm" alt="شعار الكلية">
+            </div>
+        </div>
+
+        <!-- Section Switch Tabs -->
+        <div class="flex gap-1.5 mb-3">
+            <button onclick="switchTab('courses')" id="tab-courses" class="flex-1 py-2 rounded-xl text-xs font-bold bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-book-bookmark"></i> المواد
+            </button>
+            <button onclick="switchTab('schedule')" id="tab-schedule" class="flex-1 py-2 rounded-xl text-xs font-bold bg-white/80 text-slate-600 hover:bg-white shadow-sm transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-calendar-days"></i> الجدول
+            </button>
+            <button onclick="switchTab('chat')" id="tab-chat" class="flex-1 py-2 rounded-xl text-xs font-bold bg-white/80 text-slate-600 hover:bg-white shadow-sm transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-comments"></i> الدردشة
+            </button>
+        </div>
+
+        <!-- Action Header -->
+        <div class="flex justify-between items-center mb-3">
+            <h3 id="section-title" class="text-xs font-extrabold text-slate-700">المواد الدراسية والمستندات</h3>
+            <button id="dev-add-btn" onclick="openAddModal()" class="hidden bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md transition flex items-center gap-1">
+                <i class="fa-solid fa-plus text-xs"></i> نشر مستند (المطور)
+            </button>
+        </div>
+
+        <!-- 1. SUBJECT CARDS SECTION -->
+        <section id="content-courses" class="space-y-3 animate-fade-in">
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-amber-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">أسس الإلكترونيك</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('أسس الإلكترونيك')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-sky-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">شبكات الحاسوب</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('شبكات الحاسوب')" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-orange-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-memory"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">تنظيم الحاسوب</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('تنظيم الحاسوب')" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-emerald-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">البرمجة الكائنية (OOP)</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('البرمجة الكائنية')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-blue-600 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">هياكل البيانات</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('هياكل البيانات')" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-rose-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">جرائم حزب البعث</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('جرائم حزب البعث')" class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+            <div class="glass-card p-3 rounded-2xl border-r-4 border-r-purple-500 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-brands fa-linux"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-800">أساسيات نظام لينكس</h4>
+                        <p class="text-[9px] text-slate-500">محاضرات ومستندات المادة</p>
+                    </div>
+                </div>
+                <button onclick="openMediaModal('أساسيات نظام لينكس')" class="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-folder-open"></i> فتح المستندات
+                </button>
+            </div>
+
+        </section>
+
+        <!-- 2. WEEKLY TIMETABLE SECTION -->
+        <section id="content-schedule" class="space-y-3 hidden animate-fade-in">
+            <div class="glass-card p-3.5 rounded-2xl">
+                <div class="flex justify-between items-center mb-3 border-b border-sky-100 pb-2">
+                    <span class="font-extrabold text-xs text-slate-800"><i class="fa-solid fa-clock text-sky-600 ml-1"></i> جدول المرحلة الثانية (صباحي)</span>
+                    <span class="text-[9px] bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-bold">كلية العمارة</span>
+                </div>
+
+                <!-- Saturday -->
+                <div class="mb-3 bg-white/80 rounded-xl p-2.5 border border-sky-100">
+                    <span class="font-extrabold text-xs text-sky-700 block mb-2"><i class="fa-solid fa-sun text-amber-500 ml-1"></i> يوم السبت</span>
+                    <div class="space-y-1.5 text-[11px]">
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>08:30 - 10:00 | <strong>تنظيم الحاسوب</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 5 (CL)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>10:00 - 11:30 | <strong>أساسيات الإلكترونيات</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 3 (CL)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>11:30 - 01:00 | <strong>هياكل البيانات</strong></span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">مختبر (LAB)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sunday -->
+                <div class="mb-3 bg-white/80 rounded-xl p-2.5 border border-sky-100">
+                    <span class="font-extrabold text-xs text-sky-700 block mb-2"><i class="fa-solid fa-sun text-amber-500 ml-1"></i> يوم الأحد</span>
+                    <div class="space-y-1.5 text-[11px]">
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>08:30 - 10:00 | <strong>جرائم البعث</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 3 (CL)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>10:00 - 11:30 | <strong>الرياضيات الهندسية</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 3 (CL)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>11:30 - 01:00 | <strong>تنظيم الحاسوب</strong></span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">مختبر (LAB)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tuesday -->
+                <div class="bg-white/80 rounded-xl p-2.5 border border-sky-100">
+                    <span class="font-extrabold text-xs text-sky-700 block mb-2"><i class="fa-solid fa-sun text-amber-500 ml-1"></i> يوم الثلاثاء</span>
+                    <div class="space-y-1.5 text-[11px]">
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>08:30 - 10:00 | <strong>أساسيات الإلكترونيات</strong></span>
+                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">مختبر (LAB)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>10:00 - 11:30 | <strong>أساسيات نظام لينكس</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 1 (CL)</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                            <span>11:30 - 01:00 | <strong>هياكل البيانات</strong></span>
+                            <span class="text-[9px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">قاعة 3 (CL)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. GROUP CHAT SECTION -->
+        <section id="content-chat" class="hidden animate-fade-in">
+            <div class="glass-card rounded-2xl p-3 h-[62vh] flex flex-col">
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-2.5 p-1 text-xs">
+                    <div class="flex gap-2 items-start">
+                        <div class="w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-[10px]">
+                            ع
+                        </div>
+                        <div class="bg-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] border border-sky-100">
+                            <span class="font-bold text-[10px] text-sky-600 block">علي حيدر</span>
+                            <p class="text-slate-700">عاشت إيدك محمد باقر على المنصة الفخمة!</p>
+                            <span class="text-[8px] text-slate-400 block text-left mt-1">10:15 ص</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="sendChatMessage(event)" class="mt-2 flex gap-2">
+                    <input type="text" id="chat-input" placeholder="اكتب رسالتك للدفعة..." class="flex-1 bg-white border border-sky-200 text-xs rounded-xl px-3 py-2 outline-none focus:border-sky-400">
+                    <button type="submit" class="bg-sky-500 text-white px-4 rounded-xl text-xs font-bold hover:bg-sky-600 transition">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALS -->
+
+    <!-- Real Account Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-5 relative animate-fade-in bg-white">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <h3 class="font-bold text-sm text-slate-800 mb-1 text-center">تسجيل الحساب الحقيقي</h3>
+            <p class="text-[10px] text-sky-600 text-center font-bold mb-4">أدخل بياناتك للانضمام لمنصة الأمن السيبراني</p>
+
+            <form onsubmit="saveRealAccount(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">الاسم الثلاثي الحقيقي:</label>
+                    <input type="text" id="reg-name" placeholder="مثال: أحمد علي حسين" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-sky-400 font-semibold" required>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (اليوزر):</label>
+                    <input type="text" id="reg-username" dir="ltr" placeholder="cyber_student" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-sky-400 font-mono text-left" required>
+                </div>
+
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 rounded-xl shadow transition mt-2">
+                    حفظ وتسجيل الحساب 🚀
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Media Documents Viewer Modal -->
+    <div id="media-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-5 relative animate-fade-in bg-white">
+            <button onclick="closeModal('media-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <h3 id="media-title" class="font-extrabold text-sm text-slate-800 mb-0.5 text-center"></h3>
+            <p id="media-subtitle" class="text-[10px] text-sky-600 font-bold text-center mb-4">📄 مستندات ومحاضرات المادة المرفوعة</p>
+
+            <div id="media-content-list" class="space-y-2 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- Add Content Modal for Developers -->
+    <div id="add-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-5 relative animate-fade-in bg-white">
+            <button onclick="closeModal('add-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <h3 class="font-bold text-sm text-slate-800 mb-3 text-center">نشر مستند جديد (محمد باقر)</h3>
+
+            <form onsubmit="handlePublishMedia(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">اختر المادة:</label>
+                    <select id="pub-subject" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 outline-none font-bold">
+                        <option value="أسس الإلكترونيك">أسس الإلكترونيك</option>
+                        <option value="شبكات الحاسوب">شبكات الحاسوب</option>
+                        <option value="تنظيم الحاسوب">تنظيم الحاسوب</option>
+                        <option value="البرمجة الكائنية">البرمجة الكائنية</option>
+                        <option value="هياكل البيانات">هياكل البيانات</option>
+                        <option value="جرائم حزب البعث">جرائم حزب البعث</option>
+                        <option value="أساسيات نظام لينكس">أساسيات نظام لينكس</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">عنوان المستند/الملخص:</label>
+                    <input type="text" id="pub-title" placeholder="مثال: ملخص الشابتر الأول PDF" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">رابط المستند المباشر (PDF / Drive):</label>
+                    <input type="url" id="pub-link" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 outline-none text-left dir-ltr" required>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="send-notif-check" checked class="w-4 h-4 text-sky-500 rounded">
+                    <label for="send-notif-check" class="font-bold text-slate-700">إرسال إشعار سريع لجميع الطلاب 🔔</label>
+                </div>
+
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 rounded-xl shadow transition mt-1">
+                    نشر المستند وتنبيه الطلاب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let isDevMode = localStorage.getItem('cyber_is_dev') === 'true';
+        const DEV_PASSCODE = '1234';
+
+        let realAccount = JSON.parse(localStorage.getItem('cyber_real_account')) || null;
+
+        let subjectMedia = JSON.parse(localStorage.getItem('cyber_subject_media')) || [
+            { subject: 'أسس الإلكترونيك', title: 'محاضرات الشابتر الأول - الأساسيات PDF', link: 'https://example.com/doc1.pdf' },
+            { subject: 'شبكات الحاسوب', title: 'ملخص بروتوكولات OSI Layer PDF', link: 'https://example.com/doc2.pdf' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.remove(), 700);
+                }
+            }, 2500);
+
+            updateUserUI();
+
+            if (!realAccount) {
+                setTimeout(() => openLoginModal(), 3000);
+            }
+        });
+
+        function updateUserUI() {
+            if (realAccount) {
+                document.getElementById('user-display-name').innerText = realAccount.name;
+                document.getElementById('user-display-username').innerText = '@' + realAccount.username.replace('@','');
+            }
+
+            if (isDevMode) {
+                document.getElementById('dev-mode-bar').classList.remove('hidden');
+                document.getElementById('dev-add-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('dev-mode-bar').classList.add('hidden');
+                document.getElementById('dev-add-btn').classList.add('hidden');
+            }
+        }
+
+        function saveRealAccount(e) {
+            e.preventDefault();
+            realAccount = {
+                name: document.getElementById('reg-name').value,
+                username: document.getElementById('reg-username').value
+            };
+            localStorage.setItem('cyber_real_account', JSON.stringify(realAccount));
+            updateUserUI();
+            closeModal('login-modal');
+            triggerRapidNotification("مرحباً بك!", `تم تسجيل حسابك الحقيقي بنجاح يا ${realAccount.name}`);
+        }
+
+        function promptDevPasscode() {
+            if (isDevMode) {
+                alert('أنت متصل الآن بصلاحيات المطور الكاملة (محمد باقر أحمد إبراهيم).');
+                return;
+            }
+            const pass = prompt('دخول المطور الخاص: ادخل الرمز السري الحصري:');
+            if (pass === DEV_PASSCODE) {
+                toggleDevMode(true);
+                alert('أهلاً بك يا مهندس محمد باقر! تم تفعيل لوحة التحكم المخصصة للمطورين.');
+            } else if (pass !== null) {
+                alert('عذراً، الرمز السري غير صحيح!');
+            }
+        }
+
+        function toggleDevMode(status) {
+            isDevMode = status;
+            localStorage.setItem('cyber_is_dev', status);
+            updateUserUI();
+        }
+
+        function triggerRapidNotification(title, body) {
+            const toast = document.getElementById('notification-toast');
+            document.getElementById('notif-title').innerText = title;
+            document.getElementById('notif-body').innerText = body;
+            toast.classList.remove('hidden');
+            setTimeout(() => closeNotification(), 5000);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification-toast').classList.add('hidden');
+        }
+
+        function openMediaModal(subjectName) {
+            document.getElementById('media-title').innerText = subjectName;
+            
+            const list = document.getElementById('media-content-list');
+            const filtered = subjectMedia.filter(m => m.subject === subjectName);
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">لا توجد مستندات مرفوعة لهذه المادة حالياً</p>`;
+            } else {
+                list.innerHTML = filtered.map(m => `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                        <div>
+                            <strong class="block text-slate-800 font-bold text-xs">${m.title}</strong>
+                            <span class="text-[9px] text-sky-600 font-medium"><i class="fa-solid fa-file-pdf ml-1"></i> مستند PDF جاهز</span>
+                        </div>
+                        <a href="${m.link}" target="_blank" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-lg text-[10px]">
+                            عرض المستند
+                        </a>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('media-modal').classList.remove('hidden');
+        }
+
+        function handlePublishMedia(e) {
+            e.preventDefault();
+            const subject = document.getElementById('pub-subject').value;
+            const title = document.getElementById('pub-title').value;
+            const link = document.getElementById('pub-link').value;
+            const sendNotif = document.getElementById('send-notif-check').checked;
+
+            subjectMedia.unshift({ subject, title, link });
+            localStorage.setItem('cyber_subject_media', JSON.stringify(subjectMedia));
+
+            closeModal('add-modal');
+
+            if (sendNotif) {
+                triggerRapidNotification(`مستند جديد في ${subject} 📄`, `قام المطور محمد باقر بنشر: ${title}`);
+            }
+        }
+
+        function switchTab(tabName) {
+            ['courses', 'schedule', 'chat'].forEach(tab => {
+                document.getElementById(`content-${tab}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${tab}`);
+                if (btn) {
+                    btn.classList.remove('bg-sky-500', 'text-white');
+                    btn.classList.add('bg-white/80', 'text-slate-600');
+                }
+            });
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-sky-500', 'text-white');
+                activeBtn.classList.remove('bg-white/80', 'text-slate-600');
+            }
+
+            const sectionTitle = document.getElementById('section-title');
+            if (tabName === 'courses') sectionTitle.innerText = 'المواد الدراسية والمستندات';
+            else if (tabName === 'schedule') sectionTitle.innerText = 'الجدول الأسبوعي للمحاضرات';
+            else if (tabName === 'chat') sectionTitle.innerText = 'دردشة الدفعة المباشرة';
+        }
+
+        function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatBox = document.getElementById('chat-box');
+            const now = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            const senderName = realAccount ? realAccount.name : 'طالب أمن سيبراني';
+            
+            chatBox.insertAdjacentHTML('beforeend', `
+                <div class="flex gap-2 items-start flex-row-reverse animate-fade-in">
+                    <div class="bg-sky-500 text-white p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] text-xs">
+                        <span class="font-bold text-[10px] text-sky-100 block">${senderName}</span>
+                        <p class="text-white">${text}</p>
+                        <span class="text-[8px] text-sky-100/80 block text-right mt-1">${now}</span>
+                    </div>
+                </div>
+            `);
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    </script>
+</body>
+</html>
